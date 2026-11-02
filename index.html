@@ -375,7 +375,7 @@
   const BUSINESS_EMAIL         = "Zack@jesplumbing.com";  // shown on the page, used for the backup option
 
   // Pick ONE way to deliver requests to your email. Leave both empty to use the backup (opens the customer's email app).
-  const WEB3FORMS_KEY = "";   // Web3Forms access key, e.g. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  const WEB3FORMS_KEY = "26bc672c-238e-444d-9a42-0ba102887856";   // Web3Forms access key, e.g. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
   const FORMSPREE_URL = "";   // Formspree link, e.g. "https://formspree.io/f/abcdwxyz"
   /* =========================================== */
 
@@ -479,10 +479,15 @@
           body:JSON.stringify({_subject:subject,name:v.name,email:v.email,phone:v.phone,message:message})
         });
       }
-      if(!res.ok) throw new Error("bad response");
+      let data=null;
+      try{ data=await res.json(); }catch(_){}
+      if(!res.ok || (data && data.success===false)){
+        throw new Error((data && data.message) ? data.message : ("Status "+res.status));
+      }
       showConfirm(null);
     }catch(x){
-      err.textContent="Your request did not go through. Please call us at "+BUSINESS_PHONE_DISPLAY+" or try again.";
+      console.error("Form error:", x);
+      err.textContent="Your request did not go through ("+(x && x.message ? x.message : "unknown error")+"). Please call us at "+BUSINESS_PHONE_DISPLAY+" or try again.";
     }finally{
       btn.disabled=false; btn.textContent="Send request";
     }
